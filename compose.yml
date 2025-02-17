@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "7032:5432"
+
+  backend:
+    image: python:3.13-rc-slim
+    volumes:
+      - ./storm_api:/app/storm_api
+      - ./poetry.lock:/app/poetry.lock
+      - ./pyproject.toml:/app/pyproject.toml
+      - ./.env:/app/.env
+    working_dir: /app/storm_api
+    command: >
+      bash -c "pip install poetry &&
+              poetry config virtualenvs.create false &&
+              poetry install --no-root &&
+              python manage.py migrate &&
+              python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://stormuser:stormpass@db:5432/stormdb
+      - DEBUG=1
+      - PYTHONUNBUFFERED=1
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    depends_on:
+      - db
+
+  frontend:
+    image: node:22-alpine
+    volumes:
+      - ./storm-frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    command: >
+      sh -c "yarn install &&
+             yarn dev --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+
+  haproxy:
+    image: haproxy:2.8-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres_data:
