@@ -1,32 +1,35 @@
-from ninja import Schema
-from datetime import datetime
+from typing import Optional
 
-from ..users.schemas import UserSchema
+from ninja import Schema, ModelSchema
 
-class PostSchema(Schema):
-    id: int
-    content: str
-    created_at: datetime
-    likes_count: int
-    is_liked: bool
-    author: UserSchema
+from apps.posts.models import Post
 
-    @classmethod
-    def from_orm(cls, post, request_user=None):
-        return cls(
-            id=post.pk,
-            content=post.content,
-            created_at=post.created_at,
-            likes_count=post.likes_count,
-            is_liked=post.is_liked_by(request_user),
-            author=UserSchema.from_orm(post.author)
-        )
+
+class PostSchema(ModelSchema):
+    class Meta:
+        model = Post
+        fields = ['id', 'author', 'likes', 'title', 'content', 'created_at', 'media_url', 'location', 'privacy_setting',
+                  'number_of_shares']
+
 
 class PostCreateSchema(Schema):
     content: str
+    title: str
+    media_url: Optional[str] = None
+    location: Optional[str] = None
+    privacy_setting: str
+
 
 class PostUpdateSchema(Schema):
-    content: str
+    content: Optional[str] = None
+    title: Optional[str] = None
+    media_url: Optional[str] = None
+    location: Optional[str] = None
+    privacy_setting: Optional[str] = None
+
 
 class ErrorSchema(Schema):
     message: str
+
+class NoneSchema(Schema):
+    success: bool

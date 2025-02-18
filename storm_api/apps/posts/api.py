@@ -1,10 +1,10 @@
-from ninja import Path, Router
+from ninja import Path, Router, Form
 from typing import List
 
 from ninja.responses import Response
 
 from common.auth import AuthBearer
-from .schemas import PostSchema, PostCreateSchema, ErrorSchema, PostUpdateSchema
+from .schemas import PostSchema, PostCreateSchema, ErrorSchema, PostUpdateSchema, NoneSchema
 from .services import PostService
 
 router = Router(tags=["posts"])
@@ -16,7 +16,7 @@ router = Router(tags=["posts"])
 }, auth=AuthBearer())
 def list_posts(request):
     try:
-        return Response(PostService.get_posts(request), status=200)
+        return PostService.get_posts()
     except Exception as error:
         return Response({"error": str(error)}, status=500)
 
@@ -25,21 +25,21 @@ def list_posts(request):
     200: PostSchema,
     403: ErrorSchema
 }, auth=AuthBearer())
-def get_post(request, post_id: int):
+def get_post(request,post_id: int):
     try:
-        return Response(PostService.get_post(request=request, post_id=post_id), status=200)
+        return PostService.get_post(post_id=post_id)
     except Exception as error:
         return Response({"error": str(error)}, status=500)
 
 
 @router.post("/create", response={
+    200: PostSchema,
     201: PostSchema,
     403: ErrorSchema
 }, auth=AuthBearer())
-def create_post(request, data: PostCreateSchema):
+def create_post(request, data: Form[PostCreateSchema]):
     try:
-        post = PostService.create_posts(request=request, data=data)
-        return Response(post, status=201)
+        return PostService.create_posts(request=request, data=data)
     except Exception as error:
         return Response({"error": str(error)}, status=500)
 
@@ -49,25 +49,25 @@ def create_post(request, data: PostCreateSchema):
 }, auth=AuthBearer())
 def update_post(request,post_id: int, data: PostUpdateSchema):
     try:
-        return Response(PostService.update_post(request=request, post_id=post_id ,data=data))
+        return PostService.update_post(post_id=post_id ,payload=data)
     except Exception as error:
         return Response({"error": str(error)}, status=500)
 
 
 @router.delete("/{post_id}", response={
-    204: None,
+    200: NoneSchema,
     403: ErrorSchema
 }, auth=AuthBearer())
-def delete_post(request, post_id: int):
+def delete_post(request,post_id: int):
     try:
-        PostService.delete_post(request=request, post_id=post_id)
-        return Response({}, status=204)
+        PostService.delete_post(post_id=post_id)
+        return {"success": True}
     except Exception as error:
         return Response({"error": str(error)}, status=500)
 
 
 @router.post("/{post_id}/like", response={
-    200: None,
+    200: NoneSchema,
     403: ErrorSchema,
     404: ErrorSchema
 }, auth=AuthBearer())
