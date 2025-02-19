@@ -14,4 +14,7 @@ class Command(BaseCommand):
         self.stdout.write('\n2. Création des posts...')
         call_command('seed_posts')
 
+        self.stdout.write('\n3. Création des commentaires...')
+        call_command('seed_comments')
+
         self.stdout.write(self.style.SUCCESS('\nBase de données peuplée avec succès !'))
