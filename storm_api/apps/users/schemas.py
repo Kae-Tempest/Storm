@@ -1,15 +1,13 @@
-from ninja import Schema
+from ninja import ModelSchema, Schema
 
-class UserSchema(Schema):
-    id: int
-    username: str
+from apps.users.models import CustomUser
 
-    @classmethod
-    def from_orm(cls, user, **kwargs):
-        return cls(
-            id=user.id,
-            username=user.username,
-        )
+
+class UserSchema(ModelSchema):
+    class Meta:
+        model = CustomUser
+        fields = "__all__"
+        exclude = ("password",'last_login', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
 
 class ErrorSchema(Schema):
     message: str
