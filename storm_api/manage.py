@@ -9,6 +9,13 @@ def main():
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
     try:
         from django.core.management import execute_from_command_line
+
+        # Si la commande est migrate, utiliser notre séquence personnalisée
+        if len(sys.argv) > 1 and sys.argv[1] == 'migrate' and len(sys.argv) == 2:
+            from core.automigrations import run_migrations
+            run_migrations()
+        else:
+            execute_from_command_line(sys.argv)
     except ImportError as exc:
         raise ImportError(
             "Couldn't import Django. Are you sure it's installed and "

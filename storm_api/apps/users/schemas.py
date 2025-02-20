@@ -6,6 +6,7 @@ from apps.users.models import CustomUser
 class UserSchema(ModelSchema):
     class Meta:
         model = CustomUser
+        db_table = 'users'
         fields = "__all__"
         exclude = ("password",'last_login', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
 
