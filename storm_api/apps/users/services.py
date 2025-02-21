@@ -2,6 +2,7 @@ from django.db.models import QuerySet
 from django.shortcuts import get_object_or_404
 
 from .models import CustomUser
+from .schemas import UserUpdateSchema
 
 
 class UsersServices:
@@ -19,10 +20,10 @@ class UsersServices:
 
     @staticmethod
     def get_user_by_tag(tag: str) -> CustomUser:
-        return CustomUser.objects.get(tag=tag)
+        return CustomUser.objects.get(tag_name=tag)
 
     @staticmethod
-    def update_user(user_id: int, payload) -> CustomUser:
+    def update_user(user_id: int, payload: UserUpdateSchema) -> CustomUser:
         users = CustomUser.objects.all()
         user = get_object_or_404(users, id=user_id)
 
@@ -34,6 +35,7 @@ class UsersServices:
         return user
 
     @staticmethod
-    def delete_user(user_id: int) -> None:
+    def delete_user(user_id: int) -> dict[str, str]:
         user = get_object_or_404(CustomUser, id=user_id)
         user.delete()
+        return {"message": "User deleted"}
