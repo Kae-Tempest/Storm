@@ -1,8 +1,8 @@
+from common.auth import AuthBearer
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from ninja import Router
 
-from common.auth import AuthBearer
 from .models import CustomUser
 from .schemas import ErrorSchema, UserSchema, UserUpdateSchema
 from .services import UsersServices

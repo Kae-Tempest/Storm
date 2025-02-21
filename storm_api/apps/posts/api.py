@@ -1,9 +1,9 @@
-from common.auth import AuthBearer
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from ninja import Form, Path, Router
+from ninja import Form, Router
 from ninja.responses import Response
 
+from common.auth import AuthBearer
 from .models import Post
 from .schemas import (
     ErrorSchema,
@@ -73,7 +73,7 @@ def delete_post(request: HttpRequest, post_id: int) -> dict[str, bool] | Respons
     403: ErrorSchema,
     404: ErrorSchema
 }, auth=AuthBearer())
-def like_post(request, post_id: int = Path(...)):
+def like_post(request: HttpRequest, post_id: int):
     try:
         PostService.like_posts(request=request, post_id=post_id)
         return Response({"success": True}, status=200)
