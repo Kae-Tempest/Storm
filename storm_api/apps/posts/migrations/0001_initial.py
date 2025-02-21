@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,21 +14,54 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('content', models.TextField()),
-                ('title', models.CharField(blank=True, max_length=255, null=True)),
-                ('media_url', models.URLField(blank=True, db_index=True, null=True)),
-                ('location', models.CharField(blank=True, max_length=255, null=True)),
-                ('privacy_setting', models.CharField(choices=[('public', 'Public'), ('friends_only', 'Friends Only'), ('private', 'Private')], default='public', max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True, db_index=True)),
-                ('number_of_shares', models.IntegerField(default=0)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='posts', to=settings.AUTH_USER_MODEL)),
-                ('likes', models.ManyToManyField(blank=True, related_name='liked_posts', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("content", models.TextField()),
+                ("title", models.CharField(blank=True, max_length=255, null=True)),
+                ("media_url", models.URLField(blank=True, db_index=True, null=True)),
+                ("location", models.CharField(blank=True, max_length=255, null=True)),
+                (
+                    "privacy_setting",
+                    models.CharField(
+                        choices=[
+                            ("public", "Public"),
+                            ("friends_only", "Friends Only"),
+                            ("private", "Private"),
+                        ],
+                        default="public",
+                        max_length=20,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True, db_index=True)),
+                ("number_of_shares", models.IntegerField(default=0)),
+                (
+                    "author",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="posts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "likes",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="liked_posts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-created_at'],
+                "ordering": ["-created_at"],
             },
         ),
     ]

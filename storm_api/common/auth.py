@@ -1,24 +1,29 @@
-from asgiref.sync import sync_to_async
-from ninja.security import HttpBearer
-from apps.users.models import CustomUser
-from typing import Optional, Dict, Any
+from datetime import UTC, datetime, timedelta
+from typing import Any
+
 import jwt
-from datetime import datetime, timedelta, timezone
+from apps.users.models import CustomUser
+from asgiref.sync import sync_to_async
 from django.conf import settings
+from django.http import HttpRequest
+from ninja.security import HttpBearer
 
 
 class AuthError(Exception):
     """Classe de base pour les erreurs d'authentification"""
+
     pass
 
 
 class InvalidToken(AuthError):
     """Exception levée quand un token est invalide"""
+
     pass
 
 
 class TokenExpired(AuthError):
     """Exception levée quand un token est expiré"""
+
     pass
 
 
@@ -27,7 +32,7 @@ class AuthBearer(HttpBearer):
     Classe de gestion de l'authentification par token Bearer
     """
 
-    async def authenticate(self, request, token: str) -> Optional[str]:
+    async def authenticate(self, request: HttpRequest, token: str) -> str | None:
         """
         Authentifie un utilisateur à partir du token JWT.
 
@@ -43,22 +48,18 @@ class AuthBearer(HttpBearer):
 
         try:
             # Clean up the token
-            if token.lower().startswith('bearer'):
-                token = token.split(' ', 1)[1].strip()
+            if token.lower().startswith("bearer"):
+                token = token.split(" ", 1)[1].strip()
 
             # Décodage du token
-            payload = jwt.decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=["HS256"]
-            )
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
 
             # Vérification de l'expiration
             exp = payload.get("exp")
             if not exp:
                 raise InvalidToken("No expiration in token")
 
-            if datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(tz=timezone.utc):
+            if datetime.fromtimestamp(exp, tz=UTC) < datetime.now(tz=UTC):
                 raise TokenExpired("Token has expired")
 
             # Récupération de l'utilisateur de façon asynchrone
@@ -88,7 +89,8 @@ class AuthBearer(HttpBearer):
             print(f"Unexpected error: {str(e)}")
             return None
 
-def create_token(user: CustomUser, expiration: Optional[timedelta] = None) -> str:
+
+def create_token(user: CustomUser, expiration: timedelta | None = None) -> str:
     """
     Crée un token JWT pour un utilisateur.
 
@@ -108,7 +110,7 @@ def create_token(user: CustomUser, expiration: Optional[timedelta] = None) -> st
     if expiration is None:
         expiration = timedelta(days=1)
 
-    current_time = datetime.now(tz=timezone.utc)
+    current_time = datetime.now(tz=UTC)
     exp_time = current_time + expiration
 
     payload = {
@@ -118,17 +120,13 @@ def create_token(user: CustomUser, expiration: Optional[timedelta] = None) -> st
         "is_staff": user.is_staff,
         "is_superuser": user.is_superuser,
         "iat": int(current_time.timestamp()),
-        "exp": int(exp_time.timestamp())
+        "exp": int(exp_time.timestamp()),
     }
 
     # Debug print
     print("Payload before encoding:", payload)
 
-    token = jwt.encode(
-        payload,
-        settings.SECRET_KEY,
-        algorithm="HS256"
-    )
+    token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
 
     # Debug print
     print("Generated token:", token)
@@ -136,7 +134,7 @@ def create_token(user: CustomUser, expiration: Optional[timedelta] = None) -> st
     return token
 
 
-def decode_token(token: str) -> Dict[str, Any]:
+def decode_token(token: str) -> Any:
     """
     Décode un token JWT.
 
@@ -154,11 +152,7 @@ def decode_token(token: str) -> Dict[str, Any]:
         raise InvalidToken("Token is required")
 
     try:
-        payload = jwt.decode(
-            token,
-            settings.SECRET_KEY,
-            algorithms=["HS256"]
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
         return payload
     except jwt.ExpiredSignatureError:
         raise TokenExpired("Token has expired")
@@ -183,7 +177,7 @@ def validate_token(token: str) -> bool:
         return False
 
 
-def get_token_expiration(token: str) -> Optional[datetime]:
+def get_token_expiration(token: str) -> datetime | None:
     """
     Retourne la date d'expiration d'un token.
 
@@ -197,7 +191,7 @@ def get_token_expiration(token: str) -> Optional[datetime]:
         payload = decode_token(token)
         exp = payload.get("exp")
         if exp:
-            return datetime.fromtimestamp(exp, tz=timezone.utc)
+            return datetime.fromtimestamp(exp, tz=UTC)
         return None
     except (InvalidToken, TokenExpired):
         return None

@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 """Django's command-line utility for administrative tasks."""
+
 import os
 import sys
 
 
-def main():
+def main() -> None:
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
     try:
         from django.core.management import execute_from_command_line
 
         # Si la commande est migrate, utiliser notre séquence personnalisée
-        if len(sys.argv) > 1 and sys.argv[1] == 'migrate' and len(sys.argv) == 2:
+        if len(sys.argv) > 1 and sys.argv[1] == "migrate" and len(sys.argv) == 2:
             from core.automigrations import run_migrations
+
             run_migrations()
         else:
             execute_from_command_line(sys.argv)
@@ -25,5 +27,5 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

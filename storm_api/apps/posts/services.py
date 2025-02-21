@@ -1,31 +1,38 @@
-from django.shortcuts import get_object_or_404
-
 from apps.posts.models import Post
 from apps.posts.schemas import PostCreateSchema, PostUpdateSchema
+from django.db.models import QuerySet
+from django.http import HttpRequest
+from django.shortcuts import get_object_or_404
 
 
 class PostService:
     @staticmethod
-    def get_posts():
-        posts = Post.objects.select_related('author').prefetch_related('likes', 'post_comments').all()
+    def get_posts() -> QuerySet[Post]:
+        posts = (
+            Post.objects.select_related("author")
+            .prefetch_related("likes", "post_comments")
+            .all()
+        )
         return posts
 
     @staticmethod
-    def get_post(post_id: int):
-        post = Post.objects.select_related('author').prefetch_related('likes', 'post_comments').filter(id=post_id).first()
-        return post
-
-    @staticmethod
-    def create_posts(request, data: PostCreateSchema) -> Post:
-        post = Post.objects.create(
-            author=request.user,
-            **data.dict()
+    def get_post(post_id: int) -> Post:
+        post = (
+            Post.objects.select_related("author")
+            .prefetch_related("likes", "post_comments")
+            .filter(id=post_id)
+            .first()
         )
         return post
 
     @staticmethod
+    def create_posts(request: HttpRequest, data: PostCreateSchema) -> Post:
+        post = Post.objects.create(author=request.user, **data.dict())
+        return post
+
+    @staticmethod
     def update_post(post_id: int, payload: PostUpdateSchema) -> Post:
-        posts = Post.objects.select_related('author').prefetch_related('likes')
+        posts = Post.objects.select_related("author").prefetch_related("likes")
         post = get_object_or_404(posts, id=post_id)
 
         data = payload.dict(exclude_unset=True)
@@ -36,7 +43,7 @@ class PostService:
         return post
 
     @staticmethod
-    def like_posts(request, post_id: int):
+    def like_posts(request: HttpRequest, post_id: int) -> None:
         post = get_object_or_404(Post, id=post_id)
 
         if request.user in post.likes.all():
