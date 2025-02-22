@@ -1,9 +1,9 @@
+from common.auth import AuthBearer
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from ninja import Form, Router
 from ninja.responses import Response
 
-from common.auth import AuthBearer
 from .models import Post
 from .schemas import (
     ErrorSchema,
