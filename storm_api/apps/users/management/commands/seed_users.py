@@ -1,9 +1,10 @@
 import random
 from datetime import timedelta
 
-from apps.users.models import CustomUser
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+
+from apps.users.models import CustomUser
 
 
 class Command(BaseCommand):
@@ -15,7 +16,7 @@ class Command(BaseCommand):
         CustomUser.objects.all().delete()
         self.stdout.write(self.style.SUCCESS("Users nettoyés !"))
 
-        usernames = ["alice", "bob", "charlie", "david", "emma", "frank"]
+        usernames = ["Alice", "Bob", "Charlie", "David", "Emma", "Frank"]
         bios = [
             "Développeur passionné 💻",
             "Fan de nouvelles technologies 🚀",
@@ -30,16 +31,16 @@ class Command(BaseCommand):
 
         for username in usernames:
             # Création d'un tag_name unique basé sur le username
-            tag_name = f"@{username}_{random.randint(1000, 9999)}"
+            display_name = f"{username}".lower()
 
             try:
                 user = CustomUser.objects.create(
                     username=username,
                     email=f"{username}@example.com",
-                    tag_name=tag_name,
+                    display_name=display_name,
                     bio=random.choice(bios),
                     date_of_birth=timezone.now().date()
-                    - timedelta(days=random.randint(8000, 20000)),
+                                  - timedelta(days=random.randint(8000, 20000)),
                     is_active=True,
                     is_staff=random.choice([True, False]),
                 )
@@ -47,7 +48,7 @@ class Command(BaseCommand):
                 user.set_password("password123")
                 user.save()
                 users_created.append(user)
-                self.stdout.write(f"Créé: {username} (tag: {tag_name})")
+                self.stdout.write(f"Créé: {username} (tag: {display_name})")
 
             except Exception as e:
                 self.stdout.write(

@@ -2,13 +2,12 @@
 from datetime import timedelta
 from typing import cast
 
-from asgiref.sync import sync_to_async
-from django.contrib.auth import authenticate
-from ninja.errors import AuthenticationError
-
 from apps.authentication.schemas import RegisterSchema
 from apps.users.models import CustomUser
+from asgiref.sync import sync_to_async
 from common.auth import InvalidToken, TokenExpired, create_token, decode_token
+from django.contrib.auth import authenticate
+from ninja.errors import AuthenticationError
 
 
 class AuthService:

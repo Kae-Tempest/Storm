@@ -1,6 +1,5 @@
-from ninja import ModelSchema, Schema
-
 from apps.users.models import CustomUser
+from ninja import ModelSchema, Schema
 
 
 class UserSchema(ModelSchema):

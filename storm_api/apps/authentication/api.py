@@ -1,15 +1,21 @@
 # apps/auth/api.py
 from typing import cast
 
+from common.auth import AuthBearer
 from django.http import HttpRequest
 from ninja import Router
 from ninja.errors import AuthenticationError
 from ninja.responses import Response
 
-from common.auth import AuthBearer
-from .schemas import ErrorSchema, LoginSchema, TokenSchema, RegisterSchema, RegisterTokenSchema
-from .services import AuthService
 from ..users.models import CustomUser
+from .schemas import (
+    ErrorSchema,
+    LoginSchema,
+    RegisterSchema,
+    RegisterTokenSchema,
+    TokenSchema,
+)
+from .services import AuthService
 
 router = Router(tags=["auth"])
 

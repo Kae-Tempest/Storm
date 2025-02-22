@@ -1,6 +1,5 @@
-from ninja import Schema
-
 from apps.users.schemas import UserSchema
+from ninja import Schema
 
 
 class LoginSchema(Schema):

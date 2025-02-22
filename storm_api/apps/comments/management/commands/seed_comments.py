@@ -1,10 +1,11 @@
 import random
 from datetime import timedelta
 
-from apps.comments.models import Comment
+from django.core.management.base import BaseCommand
+
+from apps.comments.models import Comment, PrivacyChoices
 from apps.posts.models import Post
 from apps.users.models import CustomUser
-from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
@@ -57,29 +58,66 @@ class Command(BaseCommand):
 
         self.stdout.write("Création des commentaires...")
         comments_created = 0
+        all_comments = []  # Pour stocker les commentaires créés et pouvoir créer des réponses
 
-        # Pour chaque post, créer entre 0 et 10 commentaires
+        # Pour chaque post, créer entre 0 et 10 commentaires parents
         for post in posts:
             num_comments = random.randint(0, 10)
 
             for _ in range(num_comments):
-                Comment.objects.create(
+                # Création du commentaire parent
+                comment = Comment.objects.create(
                     post=post,
                     user=random.choice(users),
                     content=random.choice(sample_comments),
-                    created_at=post.created_at
-                    + timedelta(
-                        hours=random.randint(
-                            1, 24 * 7
-                        ),  # Commentaire dans la semaine qui suit le post
+                    created_at=post.created_at + timedelta(
+                        hours=random.randint(1, 24 * 7),
                         minutes=random.randint(0, 59),
                     ),
+                    status=random.choice([PrivacyChoices.ACTIVE, PrivacyChoices.ACTIVE, PrivacyChoices.DELETED]),
+                    # 2/3 actifs, 1/3 supprimés
+                    parent_comment=None,
                 )
+
+                # Ajout aléatoire de likes
+                num_likes = random.randint(0, len(users) // 3)
+                comment.likes.add(*random.sample(users, num_likes))
+
+                # Ajout aléatoire de reports
+                num_reports = random.randint(0, len(users) // 10)  # Moins de reports que de likes
+                comment.reportes.add(*random.sample(users, num_reports))
+
+                all_comments.append(comment)
                 comments_created += 1
+
+                # Création de réponses (sous-commentaires)
+                num_replies = random.randint(0, 3)  # 0 à 3 réponses par commentaire
+                for _ in range(num_replies):
+                    reply = Comment.objects.create(
+                        post=post,
+                        user=random.choice(users),
+                        content=f"En réponse : {random.choice(sample_comments)}",
+                        created_at=comment.created_at + timedelta(
+                            hours=random.randint(1, 24),
+                            minutes=random.randint(0, 59),
+                        ),
+                        status=random.choice([PrivacyChoices.ACTIVE, PrivacyChoices.ACTIVE, PrivacyChoices.DELETED]),
+                        parent_comment=comment,
+                    )
+
+                    # Ajout aléatoire de likes pour les réponses
+                    num_likes = random.randint(0, len(users) // 4)
+                    reply.likes.add(*random.sample(users, num_likes))
+
+                    # Ajout aléatoire de reports pour les réponses
+                    num_reports = random.randint(0, len(users) // 12)
+                    reply.reportes.add(*random.sample(users, num_reports))
+
+                    comments_created += 1
 
             if num_comments > 0:
                 self.stdout.write(
-                    f"Créé {num_comments} commentaires pour le post {post.id}"
+                    f"Créé {num_comments} commentaires parents pour le post {post.id}"
                 )
 
         self.stdout.write(

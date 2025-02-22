@@ -26,9 +26,9 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 ("content", models.TextField()),
-                ("title", models.CharField(blank=True, max_length=255, null=True)),
-                ("media_url", models.URLField(blank=True, db_index=True, null=True)),
-                ("location", models.CharField(blank=True, max_length=255, null=True)),
+                ("title", models.CharField(blank=True, max_length=255)),
+                ("media_url", models.URLField(blank=True, db_index=True)),
+                ("location", models.CharField(blank=True, max_length=255)),
                 (
                     "privacy_setting",
                     models.CharField(

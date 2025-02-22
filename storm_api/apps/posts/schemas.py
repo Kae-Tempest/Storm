@@ -1,24 +1,16 @@
-from typing import Optional
+from ninja import ModelSchema, Schema
 
 from apps.posts.models import Post
-from ninja import ModelSchema, Schema
+from apps.users.schemas import UserSchema
 
 
 class PostSchema(ModelSchema):
+    likes: list[UserSchema]
+    author: UserSchema
+
     class Meta:
         model = Post
-        fields = [
-            "id",
-            "author",
-            "likes",
-            "title",
-            "content",
-            "created_at",
-            "media_url",
-            "location",
-            "privacy_setting",
-            "number_of_shares",
-        ]
+        fields = "__all__"
 
 
 class PostCreateSchema(Schema):

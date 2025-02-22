@@ -2,10 +2,11 @@
 import random
 from datetime import timedelta
 
-from apps.posts.models import Post
-from apps.users.models import CustomUser
 from django.core.management.base import BaseCommand
 from django.utils import timezone
+
+from apps.posts.models import Post
+from apps.users.models import CustomUser
 
 
 class Command(BaseCommand):
@@ -134,7 +135,7 @@ class Command(BaseCommand):
                 location=sample["location"],
                 author=random.choice(users),
                 created_at=timezone.now()
-                - timedelta(
+                           - timedelta(
                     days=random.randint(0, 30),
                     hours=random.randint(0, 23),
                     minutes=random.randint(0, 59),
