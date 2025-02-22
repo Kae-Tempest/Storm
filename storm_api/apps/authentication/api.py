@@ -1,15 +1,15 @@
 # apps/auth/api.py
 from typing import cast
 
-from common.auth import AuthBearer
 from django.http import HttpRequest
 from ninja import Router
 from ninja.errors import AuthenticationError
 from ninja.responses import Response
 
-from ..users.models import CustomUser
-from .schemas import ErrorSchema, LoginSchema, TokenSchema
+from common.auth import AuthBearer
+from .schemas import ErrorSchema, LoginSchema, TokenSchema, RegisterSchema, RegisterTokenSchema
 from .services import AuthService
+from ..users.models import CustomUser
 
 router = Router(tags=["auth"])
 
@@ -21,6 +21,14 @@ async def login(request: HttpRequest, payload: LoginSchema) -> dict[str, str] | 
         return await AuthService.authenticate_user(
             email=payload.email, password=payload.password
         )
+    except AuthenticationError as e:
+        return Response({"detail": str(e)}, status=401)
+
+
+@router.post("/register", response={200: RegisterTokenSchema, 401: ErrorSchema}, auth=None)
+async def register(request: HttpRequest, payload: RegisterSchema) -> dict[str, str] | Response:
+    try:
+        return await AuthService.register_user(payload=payload)
     except AuthenticationError as e:
         return Response({"detail": str(e)}, status=401)
 

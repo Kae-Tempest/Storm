@@ -34,8 +34,8 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=150)
-    tag_name = models.CharField(max_length=60, unique=True)
+    username = models.SlugField(max_length=150, unique=True)
+    display_name = models.CharField(max_length=150)
     email = models.EmailField(unique=True)
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
     bio = models.TextField(blank=True)
