@@ -1,10 +1,9 @@
 import random
 from datetime import timedelta
 
+from apps.users.models import CustomUser
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-
-from apps.users.models import CustomUser
 
 
 class Command(BaseCommand):

@@ -1,8 +1,9 @@
-from apps.posts.models import Post
-from apps.posts.schemas import PostCreateSchema, PostUpdateSchema
 from django.db.models import QuerySet
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
+
+from apps.posts.models import Post, PrivacyChoices
+from apps.posts.schemas import PostCreateSchema, PostUpdateSchema
 
 
 class PostService:
@@ -52,6 +53,7 @@ class PostService:
             post.likes.add(request.user)
 
     @staticmethod
-    def delete_post(post_id: int) -> None:
+    def desactivate_post(post_id: int) -> None:
         post = get_object_or_404(Post, id=post_id)
-        post.delete()
+        post.privacy_setting = PrivacyChoices.DELETED
+        post.save()

@@ -1,11 +1,10 @@
 import random
 from datetime import timedelta
 
-from django.core.management.base import BaseCommand
-
-from apps.comments.models import Comment, PrivacyChoices
+from apps.comments.models import Comment, StatusChoices
 from apps.posts.models import Post
 from apps.users.models import CustomUser
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
@@ -74,7 +73,7 @@ class Command(BaseCommand):
                         hours=random.randint(1, 24 * 7),
                         minutes=random.randint(0, 59),
                     ),
-                    status=random.choice([PrivacyChoices.ACTIVE, PrivacyChoices.ACTIVE, PrivacyChoices.DELETED]),
+                    status=random.choice([StatusChoices.ACTIVE, StatusChoices.ACTIVE, StatusChoices.DELETED]),
                     # 2/3 actifs, 1/3 supprimés
                     parent_comment=None,
                 )
@@ -101,7 +100,7 @@ class Command(BaseCommand):
                             hours=random.randint(1, 24),
                             minutes=random.randint(0, 59),
                         ),
-                        status=random.choice([PrivacyChoices.ACTIVE, PrivacyChoices.ACTIVE, PrivacyChoices.DELETED]),
+                        status=random.choice([StatusChoices.ACTIVE, StatusChoices.ACTIVE, StatusChoices.DELETED]),
                         parent_comment=comment,
                     )
 
