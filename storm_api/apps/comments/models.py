@@ -1,10 +1,9 @@
-from django.db import models
-
 from apps.posts.models import Post
 from apps.users.models import CustomUser
+from django.db import models
 
 
-class PrivacyChoices(models.TextChoices):
+class StatusChoices(models.TextChoices):
     ACTIVE = "active", "Active"
     DELETED = "deleted", "Deleted"
 
@@ -19,7 +18,7 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
-        max_length=10, choices=PrivacyChoices.choices, default=PrivacyChoices.ACTIVE
+        max_length=10, choices=StatusChoices.choices, default=StatusChoices.ACTIVE
     )
 
     parent_comment = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, related_name="replies")

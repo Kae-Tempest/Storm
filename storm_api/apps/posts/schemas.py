@@ -1,7 +1,6 @@
-from ninja import ModelSchema, Schema
-
 from apps.posts.models import Post
 from apps.users.schemas import UserSchema
+from ninja import ModelSchema, Schema
 
 
 class PostSchema(ModelSchema):

@@ -1,11 +1,13 @@
-from apps.users.models import CustomUser
 from django.db import models
+
+from apps.users.models import CustomUser
 
 
 class PrivacyChoices(models.TextChoices):
     PUBLIC = "public", "Public"
     FRIENDS_ONLY = "friends_only", "Friends Only"
     PRIVATE = "private", "Private"
+    DELETED = "deleted", "Deleted"
 
 
 class Post(models.Model):
