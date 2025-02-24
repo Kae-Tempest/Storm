@@ -1,1 +1,15 @@
-@import 'tailwindcss'
+@import 'tailwindcss';
+
+@theme {
+    --primary: #25569E;
+    --secondary: #1AB5FF;
+    --accent: #94168A;
+    --neutral: #25032C;
+    --info: #6366F1;
+    --success: #4ADE80;
+    --warning: #F59E0B;
+    --danger: #F43F5E;
+    --base-100: #36385E;
+    --base-200: #292A47;
+    --base-300: #1C1D31;
+}

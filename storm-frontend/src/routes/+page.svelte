@@ -1,7 +1,7 @@
 <script lang="ts">
-    import { onMount } from 'svelte';
-    import { postStore } from '$lib/stores/posts';
-    import type { Posts } from '$lib/types/posts';
+    import {onMount} from 'svelte';
+    import {postStore} from '$lib/stores/posts/posts';
+    import type {Posts} from '$lib/types/posts';
 
     let posts: Posts[] = [];
     let loading = false;
@@ -20,6 +20,7 @@
     function handleLike(postId: number): void {
         postStore.likePost(postId);
     }
+
 </script>
 
 <div class="post-list">
@@ -32,9 +33,9 @@
             <div class="post">
                 <div class="post-content">{post.content}</div>
                 <div class="post-actions">
-                    <button 
-                        on:click={() => handleLike(post.id)}
-                        class:liked={post.is_liked}
+                    <button
+                            on:click={() => handleLike(post.id)}
+                            class:liked={post.is_liked}
                     >
                         ❤️ {post.likes_count}
                     </button>
@@ -50,13 +51,13 @@
         padding: 1rem;
         margin-bottom: 1rem;
     }
-    
+
     .post-actions button {
         background: none;
         border: none;
         cursor: pointer;
     }
-    
+
     .post-actions button.liked {
         color: red;
     }
