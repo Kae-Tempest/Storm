@@ -2,12 +2,13 @@
 from datetime import timedelta
 from typing import cast
 
-from apps.authentication.schemas import RegisterSchema
-from apps.users.models import CustomUser
 from asgiref.sync import sync_to_async
-from common.auth import InvalidToken, TokenExpired, create_token, decode_token
 from django.contrib.auth import authenticate
 from ninja.errors import AuthenticationError
+
+from apps.authentication.schemas import RegisterSchema
+from apps.users.models import CustomUser
+from common.auth import InvalidToken, TokenExpired, create_token, decode_token
 
 
 class AuthService:
@@ -35,7 +36,7 @@ class AuthService:
                 user=user_obj, expiration=timedelta(hours=2)
             )
 
-            return {"access_token": token, "token_type": "bearer"}
+            return {"access_token": token, "token_type": "bearer", "user": user_obj}
 
         except Exception as e:
             raise AuthenticationError(f"Authentication failed: {str(e)}")
