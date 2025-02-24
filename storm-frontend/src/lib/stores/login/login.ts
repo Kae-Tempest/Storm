@@ -1,22 +1,27 @@
 import { derived, get, writable, type Writable } from 'svelte/store';
 import { goto } from '$app/navigation';
 import { browser } from '$app/environment';
+import type { User } from '$lib/types/user';
 
-interface ILoginPayload {
+interface ILogin {
 	access_token: string;
 	token_type: string;
+	user: User;
 	loading: boolean;
 	error: string | null;
 }
 
-const getInitialState = (): ILoginPayload => {
+const getInitialState: () => ILogin = (): ILogin => {
 	if (browser) {
-		const savedToken = localStorage.getItem('auth_token');
-		const savedTokenType = localStorage.getItem('token_type');
-		if (savedToken && savedTokenType) {
+		const savedToken: string | null = localStorage.getItem('auth_token');
+		const savedTokenType: string | null = localStorage.getItem('token_type');
+		const savedUser: string | null = localStorage.getItem('user');
+		const parsedSavedUser: User | null = savedUser !== null ? JSON.parse(savedUser) : null;
+		if (savedToken && savedTokenType && parsedSavedUser) {
 			return {
 				access_token: savedToken,
 				token_type: savedTokenType,
+				user: parsedSavedUser,
 				loading: false,
 				error: null
 			};
@@ -25,13 +30,23 @@ const getInitialState = (): ILoginPayload => {
 	return {
 		access_token: '',
 		token_type: 'Bearer',
+		user: {
+			id: 0,
+			email: '',
+			username: '',
+			display_name: '',
+			avatar: '',
+			bio: '',
+			date__of_birth: new Date(),
+			updated_at: new Date()
+		},
 		loading: false,
 		error: null
 	};
 };
 
 function createAuthStore() {
-	const { subscribe, update, set }: Writable<ILoginPayload> = writable(getInitialState());
+	const { subscribe, update, set }: Writable<ILogin> = writable(getInitialState());
 
 	const authHeader = derived({ subscribe }, ($state) =>
 		$state.access_token ? `${$state.token_type} ${$state.access_token}` : null
@@ -72,22 +87,23 @@ function createAuthStore() {
 
 				if (!resp.ok) {
 					const { detail } = await resp.json();
-					console.log(detail);
 					throw new Error(detail);
 				}
 
-				const { access_token, token_type } = await resp.json();
+				const { access_token, token_type, user } = await resp.json();
 
 				// Sauvegarder dans le localStorage
 				if (browser) {
 					localStorage.setItem('auth_token', access_token);
 					localStorage.setItem('token_type', token_type);
+					localStorage.setItem('user', user);
 				}
 
 				update((state) => ({
 					...state,
 					access_token,
 					token_type,
+					user,
 					loading: false,
 					error: null
 				}));
@@ -112,6 +128,16 @@ function createAuthStore() {
 			set({
 				access_token: '',
 				token_type: 'Bearer',
+				user: {
+					id: 0,
+					email: '',
+					username: '',
+					display_name: '',
+					avatar: '',
+					bio: '',
+					date__of_birth: new Date(),
+					updated_at: new Date()
+				},
 				loading: false,
 				error: null
 			});
