@@ -23,7 +23,7 @@ services:
               poetry config virtualenvs.create false &&
               poetry install --no-root &&
               python manage.py migrate &&
-              python manage.py runserver 0.0.0.0:8000"
+              python manage.py runserver 0.0.0.0:8000 --noreload"
     ports:
       - "8000:8000"
     environment:
@@ -35,6 +35,9 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     depends_on:
       - db
+    networks:
+      - default
+      - docker-monitoring_public
 
   frontend:
     image: node:22-alpine
@@ -64,3 +67,7 @@ services:
 
 volumes:
   postgres_data:
+
+networks:
+  docker-monitoring_public:
+    external: true

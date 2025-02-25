@@ -4,11 +4,17 @@
 import os
 import sys
 
+from opentelemetry.instrumentation.django import DjangoInstrumentor
+
 
 def main() -> None:
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
     try:
+        os.environ.setdefault(
+            "DJANGO_SETTINGS_MODULE", "instrumentation_example.settings"
+        )
+        DjangoInstrumentor().instrument()
         from django.core.management import execute_from_command_line
 
         # Si la commande est migrate, utiliser notre séquence personnalisée
