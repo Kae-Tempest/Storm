@@ -1,5 +1,6 @@
-from apps.users.schemas import UserSchema
 from ninja import Schema
+
+from apps.users.schemas import UserSchema
 
 
 class LoginSchema(Schema):
@@ -17,6 +18,7 @@ class RegisterSchema(Schema):
 class TokenSchema(Schema):
     access_token: str
     token_type: str = "bearer"
+    user: UserSchema
 
 
 class RegisterTokenSchema(TokenSchema):
