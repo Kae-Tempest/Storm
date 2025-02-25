@@ -1,13 +1,14 @@
 <script lang="ts">
-	import {i18n} from "$lib/i18n";
-	import {ParaglideJS} from "@inlang/paraglide-sveltekit";
+	import { i18n } from '$lib/i18n';
+	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
 	import '../app.css';
-	import logo from "$lib/assets/logo.png";
 
-	let {children} = $props();
+	let { children } = $props();
 </script>
 
 <ParaglideJS {i18n}>
-    <img src="{logo}" alt="project logo" class="h-full opacity-25 absolute top-0 left-0 w-full -z-1"/>
-    {@render children()}
+    <span
+			class="h-full w-full bg-fixed bg-[url($lib/assets/logo.png)] opacity-25 bg-no-repeat bg-center bg-contain absolute top-0 left-0 -z-1">
+    </span>
+	{@render children()}
 </ParaglideJS>

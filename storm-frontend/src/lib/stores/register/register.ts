@@ -76,12 +76,11 @@ function createRegistetStore() {
 				}
 				// TODO: Voir si on recupere aussi le user
 				const { access_token, token_type, user } = await resp.json();
-
 				// Sauvegarder dans le localStorage
 				if (browser) {
 					localStorage.setItem('auth_token', access_token);
 					localStorage.setItem('token_type', token_type);
-					localStorage.setItem('user', user);
+					localStorage.setItem('user', JSON.stringify(user));
 				}
 
 				update((state) => ({

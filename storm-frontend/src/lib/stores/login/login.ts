@@ -16,7 +16,8 @@ const getInitialState: () => ILogin = (): ILogin => {
 		const savedToken: string | null = localStorage.getItem('auth_token');
 		const savedTokenType: string | null = localStorage.getItem('token_type');
 		const savedUser: string | null = localStorage.getItem('user');
-		const parsedSavedUser: User | null = savedUser !== null ? JSON.parse(savedUser) : null;
+		const parsedSavedUser: User | null = savedUser ? JSON.parse(savedUser) : null;
+
 		if (savedToken && savedTokenType && parsedSavedUser) {
 			return {
 				access_token: savedToken,
@@ -96,7 +97,7 @@ function createAuthStore() {
 				if (browser) {
 					localStorage.setItem('auth_token', access_token);
 					localStorage.setItem('token_type', token_type);
-					localStorage.setItem('user', user);
+					localStorage.setItem('user', JSON.stringify(user));
 				}
 
 				update((state) => ({
@@ -123,6 +124,7 @@ function createAuthStore() {
 			if (browser) {
 				localStorage.removeItem('auth_token');
 				localStorage.removeItem('token_type');
+				localStorage.removeItem('user');
 			}
 
 			set({
