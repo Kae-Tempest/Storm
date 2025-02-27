@@ -2,11 +2,14 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import jwt
-from apps.users.models import CustomUser
 from asgiref.sync import sync_to_async
 from django.conf import settings
 from django.http import HttpRequest
+from ninja.errors import AuthenticationError
+from ninja.responses import Response
 from ninja.security import HttpBearer
+
+from apps.users.models import CustomUser
 
 
 class AuthError(Exception):
@@ -71,6 +74,13 @@ class AuthBearer(HttpBearer):
             get_user = sync_to_async(CustomUser.objects.filter(id=user_id).first)
             user = await get_user()
 
+            if datetime.fromtimestamp(exp, tz=UTC) - timedelta(minutes=10) < datetime.now(
+                    tz=UTC) and datetime.fromtimestamp(exp, tz=UTC) > datetime.now(tz=UTC):
+                try:
+                    token = create_token(user)
+                except Exception as e:
+                    raise AuthenticationError(f"Token refresh failed: {str(e)}")
+
             if not user:
                 raise InvalidToken("User not found")
 
@@ -82,8 +92,10 @@ class AuthBearer(HttpBearer):
             return token
 
         except jwt.ExpiredSignatureError:
+            Response({"detail": "Token has expired"}, status=403)
             raise TokenExpired("Token has expired")
         except jwt.InvalidTokenError as e:
+            Response({"detail": "Invalid token format"}, status=500)
             raise InvalidToken(f"Invalid token format: {str(e)}")
         except Exception as e:
             print(f"Unexpected error: {str(e)}")
@@ -123,13 +135,7 @@ def create_token(user: CustomUser, expiration: timedelta | None = None) -> str:
         "exp": int(exp_time.timestamp()),
     }
 
-    # Debug print
-    print("Payload before encoding:", payload)
-
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm="HS256")
-
-    # Debug print
-    print("Generated token:", token)
 
     return token
 

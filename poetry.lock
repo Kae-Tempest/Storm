@@ -798,26 +798,6 @@ opentelemetry-instrumentation-dbapi = "0.51b0"
 instruments = ["psycopg (>=3.1.0)"]
 
 [[package]]
-name = "opentelemetry-instrumentation-psycopg2"
-version = "0.51b0"
-description = "OpenTelemetry psycopg2 instrumentation"
-optional = false
-python-versions = ">=3.8"
-groups = ["main"]
-files = [
-    {file = "opentelemetry_instrumentation_psycopg2-0.51b0-py3-none-any.whl", hash = "sha256:888e58c6ee3583454c67bbd3c76c76261fdccd6507c770f93ab5819eaa48366c"},
-    {file = "opentelemetry_instrumentation_psycopg2-0.51b0.tar.gz", hash = "sha256:65b486df77845d00553a02c8c010efb79586c84a0a4643d93a985bd5ece90e88"},
-]
-
-[package.dependencies]
-opentelemetry-api = ">=1.12,<2.0"
-opentelemetry-instrumentation = "0.51b0"
-opentelemetry-instrumentation-dbapi = "0.51b0"
-
-[package.extras]
-instruments = ["psycopg2 (>=2.7.3.1)", "psycopg2-binary (>=2.7.3.1)"]
-
-[[package]]
 name = "opentelemetry-instrumentation-requests"
 version = "0.51b0"
 description = "OpenTelemetry requests instrumentation"
@@ -1564,4 +1544,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "fbd185606555b6e1cfe7713bf6982b0bc23b4ed12ed45e0910c5171c692a904b"
+content-hash = "8f0e7bcb2ad722b27581845adc6476c3be530fbb67e27cb4e5f0dbd13ac3c36d"
