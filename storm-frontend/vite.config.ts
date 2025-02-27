@@ -13,7 +13,15 @@ export default defineConfig({
 			outdir: './src/lib/paraglide'
 		})
 	],
+	optimizeDeps: {
+		include: ['quill']
+	},
 
+	build: {
+		commonjsOptions: {
+			include: [/quill/]
+		}
+	},
 	test: {
 		workspace: [
 			{

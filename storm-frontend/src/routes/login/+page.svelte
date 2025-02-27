@@ -33,43 +33,40 @@
 </script>
 
 
-<section class="h-full w-full">
-	<div class="w-full h-full flex justify-center items-center">
-		<form class="w-lg p-4 flex flex-col" on:submit|preventDefault={handleLogin}>
-			<div class="flex mb-2">
+<section id="login">
+	<div class="container">
+		<form on:submit|preventDefault={handleLogin}>
+			<div class="field">
 				<!--  icon  -->
-				<div class="flex items-center justify-center w-13 h-13 bg-slate-900 rounded-l">
+				<div class="icon">
 					<AtSign />
 				</div>
-				<input type="email" placeholder="Email" bind:value={email} required disabled={isSubmitting}
-							 class="w-full h-13 bg-slate-800 px-2 rounded-r">
+				<input type="email" placeholder="Email" bind:value={email} required disabled={isSubmitting}>
 			</div>
-			<div class="flex my-2">
+			<div class="field">
 				<!--  icon  -->
-				<div class="flex items-center justify-center w-13 h-13 bg-slate-900 rounded-l">
+				<div class="icon">
 					<LockKeyhole />
 				</div>
-				<input type="password" placeholder="Password" bind:value={password} required disabled={isSubmitting}
-							 class="w-full h-13 bg-slate-800 px-2 rounded-r">
+				<input type="password" placeholder="Password" bind:value={password} required disabled={isSubmitting}>
 			</div>
 			{#if error}
 				{#if typeof error === 'object' && typeof error !== 'string'}
-					<span class="text-center text-red-500">{error.message}</span>
+					<span class="error">{error.message}</span>
 				{:else}
-					<span class="text-center text-red-500">{error}</span>
+					<span class="error">{error}</span>
 				{/if}
 			{/if}
-			<button type="submit" disabled={isSubmitting || !email.trim() || !password.trim()}
-							class="bg-blue-900 w-full rounded-md p-2 my-2">
+			<button type="submit" disabled={isSubmitting || !email.trim() || !password.trim()}>
 				{#if isSubmitting}
 					Login in progress
 				{:else}
 					Login
 				{/if}
 			</button>
-			<div class="flex justify-between text-xs text-stone-100/50">
-				<span class="hover:text-stone-100 cursor-pointer">Forgotten password ?</span>
-				<span class="hover:text-stone-100 cursor-pointer"><a href="/register">No Account ? Sign Up !</a></span>
+			<div class="action_container">
+				<span>Forgotten password ?</span>
+				<span><a href="/register">No Account ? Sign Up !</a></span>
 			</div>
 		</form>
 	</div>

@@ -1,53 +1,67 @@
-<script>
+<script lang="ts">
 	import logo from '$lib/assets/logo.png';
 	import { AuthStore } from '$lib/stores/login/login.js';
 	import { House, MessagesSquare, Plus, Search } from 'lucide-svelte';
+	import CreatePostModal from '$lib/components/modals/createPostModal.svelte';
 
 	let showMenu = false;
-</script>
+	let dialogCreatePost: HTMLDialogElement;
+	let dialogIsOpen = false;
 
-<nav class="h-full max-w-3xs border-r border-r-blue-900 flex flex-col sticky mr-2 pr-4">
-	<section>
-		<a href="/" class="flex w-full items-center">
-			<img src="{logo}" alt="project logo" class="max-w-[123px]" />
-			<h1 class="text-4xl font-black">Storm</h1>
+	function handleOpenModal(): void {
+		dialogIsOpen = true;
+		setTimeout(() => {
+			dialogCreatePost.showModal();
+		}, 0);
+
+	}
+
+</script>
+{#if dialogIsOpen}
+	<CreatePostModal bind:dialogCreatePost on:close={() => dialogIsOpen = false} />
+{/if}
+
+<nav id="navbar">
+	<section class="header">
+		<a href="/">
+			<img src="{logo}" alt="project logo" />
+			<h1>Storm</h1>
 		</a>
 	</section>
-	<section class="flex flex-col w-full items-center mb-auto ">
-		<ul class="h-full flex flex-col text-xl w-2/3">
-			<li class="hover:bg-stone-100/20 w-full p-2 rounded cursor-pointer">
-				<a href="/" class="flex gap-2">
+	<section class="content">
+		<ul class="list">
+			<li class="puce">
+				<a href="/">
 					<House />
 					Home
 				</a>
 			</li>
-			<li class="hover:bg-stone-100/20 w-full p-2 rounded cursor-pointer">
-				<a href="/chat" class="flex gap-2">
+			<li class="puce">
+				<a href="/chat">
 					<MessagesSquare />
 					Chat
 				</a>
 			</li>
-			<li class="hover:bg-stone-100/20 w-full p-2 rounded cursor-pointer">
-				<button class="cursor-pointer flex gap-2">
+			<li class="puce">
+				<button>
 					<Search />
 					Search
 				</button>
 			</li>
-			<li class="hover:bg-stone-100/20 w-full p-2 rounded cursor-pointer">
-				<button class="cursor-pointer flex gap-2">
+			<li class="puce">
+				<button on:click={handleOpenModal}>
 					<Plus />
 					Post
 				</button>
 			</li>
 		</ul>
 	</section>
-	<section class="flex w-full justify-center relative">
+	<section class="footer">
 		{#if showMenu}
-			<div class="absolute bottom-30 left-11 rounded p-5 text-xl w-2/3 text-center
-             bg-slate-800 border border-blue-900 ">
-				<ul class="flex flex-col gap-2">
+			<div class="menu">
+				<ul class="list">
 					<li>
-						<button on:click={() => AuthStore.logout()} class="cursor-pointer">Logout</button>
+						<button on:click={() => AuthStore.logout()}>Logout</button>
 					</li>
 					<li>
 						<a href="/profile/">Profile</a>
@@ -62,8 +76,8 @@
 				</ul>
 			</div>
 		{/if}
-		<button on:click={() => showMenu = !showMenu} class="cursor-pointer">
-			<img src="{logo}" alt="project logo" class="max-w-[123px]" />
+		<button on:click={() => showMenu = !showMenu} class="user_logo">
+			<img src="{logo}" alt="project logo" />
 		</button>
 	</section>
 </nav>

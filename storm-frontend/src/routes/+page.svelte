@@ -20,21 +20,20 @@
 	});
 </script>
 
-<section class="h-screen w-full flex">
+<section id="home_page">
 	<!-- NAV -->
 	<Navbar />
 	<!-- Content -->
 	{#if loading}
-		<div class="flex justify-center items-center h-full w-full p-4">
-			<span class="text-lg">Chargement en cours...</span>
+		<div class="loading">
+			<span>Chargement en cours...</span>
 		</div>
 	{:else if error}
-		<div class="flex justify-center items-center h-full w-full p-4 text-red-500">
+		<div class="error">
 			{error}
 		</div>
 	{:else}
-		<div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 overflow-y-auto h-full
-        2xl:grid-cols-5 3xl:grid-cols-6 5xl:grid-cols-7 gap-3 p-4 grid-flow-row-dense w-full">
+		<div class="grid_wrapper">
 			{#each posts as post}
 				<PostCard post={post} />
 			{/each}
