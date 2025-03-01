@@ -1,5 +1,5 @@
 import { writable, type Writable } from 'svelte/store';
-import type { Posts } from '$lib/types/posts';
+import type { CreatePost, Posts } from '$lib/types/posts';
 import { AuthStore } from '$lib/stores/login/login';
 
 interface PostState {
@@ -20,14 +20,14 @@ function createPostStore() {
 	return {
 		subscribe,
 		fetchPosts: async (): Promise<void> => {
-			update((state) => ({ ...state, loading: true }));
+			update((state: PostState): PostState => ({ ...state, loading: true }));
 			try {
-				const response = await AuthStore.fetchWithAuth('/api/posts');
+				const response: Response = await AuthStore.fetchWithAuth('/api/posts');
 				if (!response.ok) {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
 				const data = (await response.json()) as Posts[];
-				update((state) => ({
+				update((state: PostState): PostState => ({
 					...state,
 					posts: data,
 					loading: false,
@@ -35,7 +35,7 @@ function createPostStore() {
 				}));
 			} catch (err) {
 				const error = err as Error;
-				update((state) => ({
+				update((state: PostState): PostState => ({
 					...state,
 					error: error.message,
 					loading: false
@@ -43,29 +43,44 @@ function createPostStore() {
 			}
 		},
 
-		createPost: async (content: string): Promise<void> => {
+		createPost: async (payload: CreatePost | FormData, contentType: string): Promise<void> => {
 			try {
-				const response = await AuthStore.fetchWithAuth('/api/posts', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json'
-					},
-					body: JSON.stringify({ content })
-				});
+				const requestOptions: RequestInit = {
+					method: 'POST'
+				};
 
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
+				if (contentType === 'multipart/form-data') {
+					if (payload instanceof FormData) {
+						requestOptions.body = payload;
+					} else {
+						throw new Error('Payload doit être FormData pour multipart/form-data');
+					}
+				} else {
+					// Pour JSON, définir le Content-Type et stringifier le body
+					requestOptions.headers = { 'Content-Type': contentType };
+					requestOptions.body = JSON.stringify(payload);
 				}
 
-				const newPost = (await response.json()) as Posts;
-				update((state) => ({
+				const response: Response = await AuthStore.fetchWithAuth('/api/posts/', requestOptions);
+
+				// Log de la réponse pour le débogage
+				const responseText = await response.text();
+
+				if (!response.ok) {
+					throw new Error(`HTTP error! status: ${response.status}, message: ${responseText}`);
+				}
+
+				// Convertir le texte en JSON
+				const newPost = JSON.parse(responseText) as Posts;
+
+				update((state: PostState): PostState => ({
 					...state,
 					posts: [newPost, ...state.posts],
 					error: null
 				}));
 			} catch (err) {
 				const error = err as Error;
-				update((state) => ({
+				update((state: PostState): PostState => ({
 					...state,
 					error: error.message
 				}));
@@ -74,7 +89,7 @@ function createPostStore() {
 
 		likePost: async (postId: number): Promise<void> => {
 			try {
-				const response = await AuthStore.fetchWithAuth(`/api/posts/${postId}/like`, {
+				const response: Response = await AuthStore.fetchWithAuth(`/api/posts/${postId}/like`, {
 					method: 'POST'
 				});
 
@@ -82,22 +97,22 @@ function createPostStore() {
 					throw new Error(`HTTP error! status: ${response.status}`);
 				}
 
-				update((state) => ({
+				update((state: PostState): PostState => ({
 					...state,
-					posts: state.posts.map((post) =>
+					posts: state.posts.map((post: Posts): Posts =>
 						post.id === postId
 							? {
-									...post,
-									likes_count: post.likes_count + 1,
-									is_liked: true
-								}
+								...post,
+								likes_count: post.likes_count + 1,
+								is_liked: true
+							}
 							: post
 					),
 					error: null
 				}));
 			} catch (err) {
 				const error = err as Error;
-				update((state) => ({
+				update((state: PostState): PostState => ({
 					...state,
 					error: error.message
 				}));

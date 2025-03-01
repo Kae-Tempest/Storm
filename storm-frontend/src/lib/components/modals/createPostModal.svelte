@@ -2,21 +2,24 @@
 	import { browser } from '$app/environment';
 	import QuillEditor from '$lib/components/quill/QuillEditor.svelte';
 	import DOMPurify from 'dompurify';
+	import { postStore } from '$lib/stores/posts/posts';
 
-	export let dialogCreatePost;
+	export let dialogCreatePost: HTMLDialogElement;
 
 	let privacyOptions: string[] = ['public', 'friend Only', 'private'];
 	let isTextOnly: boolean = false;
-	let post_media: string, fileinput;
-
+	let post_media: string, fileinput: FileList | null, image: File | null;
+	let privacy: string = 'public';
 	let editorContent = '';
 	$: sanitizedContent = browser && DOMPurify.sanitize(editorContent);
 	$: if (isTextOnly) post_media = '';
+	$: if (isTextOnly) fileinput = null;
 
 	const onFileSelected = (e: Event) => {
 		let input = e.target as HTMLInputElement;
 		if (input.files && input.files[0]) {
-			let image = input.files[0];
+			console.log(input.files[0], 'input.files');
+			image = input.files[0];
 			let reader = new FileReader();
 			reader.readAsDataURL(image);
 			reader.onload = e => {
@@ -24,6 +27,29 @@
 			};
 		}
 	};
+
+	async function createPost() {
+		const formData = new FormData();
+
+		formData.append('content', editorContent);
+		formData.append('privacy_setting', privacy);
+
+		if (image) {
+			formData.append('media_url', image);
+		}
+
+		await postStore.createPost(formData, 'multipart/form-data');
+		await cancelPost();
+	}
+
+	async function cancelPost() {
+		post_media = '';
+		fileinput = null;
+		editorContent = '';
+		privacy = 'public';
+		dialogCreatePost.close();
+	}
+
 </script>
 
 
@@ -33,7 +59,7 @@
 			Post Creation
 		</header>
 		<section class="content">
-			<form class="text_container">
+			<form class="text_container" on:submit|preventDefault={createPost} on:reset={cancelPost}>
 				{#if browser}
 					<div class="editor">
 						<QuillEditor
@@ -46,10 +72,10 @@
 							<ul class="list">
 								<li>Text-only : <input type="checkbox" bind:checked={isTextOnly}></li>
 								<li>Media :
-									<input type="file" disabled={isTextOnly} on:change={(e)=>onFileSelected(e)} bind:this={fileinput}>
+									<input type="file" disabled={isTextOnly} on:change={(e)=>onFileSelected(e)} bind:files={fileinput}>
 								</li>
 								<li>Privacy :
-									<select>
+									<select bind:value={privacy}>
 										{#each privacyOptions as privacyOption}
 											<option value={privacyOption} label={privacyOption}></option>
 										{/each}
@@ -82,7 +108,6 @@
 							</section>
 						</div>
 					</div>
-
 					<div class="action-buttons">
 						<button type="reset" class="reset">Cancel</button>
 						<button type="submit" class="submit">Post</button>

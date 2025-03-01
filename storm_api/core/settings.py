@@ -139,3 +139,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Configuration OpenTelemetry
 OTEL_PYTHON_DJANGO_INSTRUMENT = True
 OTEL_PYTHON_SERVICE_NAME = "Storm"
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
