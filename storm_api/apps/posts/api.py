@@ -1,54 +1,84 @@
 from django.db.models import QuerySet
 from django.http import HttpRequest
-from ninja import Form, Router
+from ninja import Router, Form
 from ninja.responses import Response
 
 from common.auth import AuthBearer
 from .models import Post
 from .schemas import (
     ErrorSchema,
-    NoneSchema,
-    PostCreateSchema,
-    PostSchema,
-    PostUpdateSchema,
+    PostSchema, PostUpdateSchema, NoneSchema, PostOutSchema,
 )
 from .services import PostService
 
 router = Router(tags=["posts"])
 
 
-@router.get("/", response={200: list[PostSchema], 403: ErrorSchema}, auth=AuthBearer())
+@router.get("/", response={200: list[PostOutSchema], 403: ErrorSchema}, auth=AuthBearer())
 def list_posts(request: HttpRequest) -> QuerySet[Post] | Response:
     try:
-        return PostService.get_posts()
+        return PostService.get_posts(request)
     except Exception as error:
         return Response({"error": str(error)}, status=500)
 
 
 @router.get(
-    "/{post_id}", response={200: PostSchema, 403: ErrorSchema}, auth=AuthBearer()
+    "/{int:post_id}", response={200: PostOutSchema, 403: ErrorSchema}, auth=AuthBearer()
 )
 def get_post(request: HttpRequest, post_id: int) -> Post | Response:
     try:
-        return PostService.get_post(post_id=post_id)
+        return PostService.get_post(request, post_id=post_id)
     except Exception as error:
         return Response({"error": str(error)}, status=500)
 
 
 @router.post(
-    "/create",
+    "/",
     response={200: PostSchema, 201: PostSchema, 403: ErrorSchema},
     auth=AuthBearer(),
 )
-def create_post(request: HttpRequest, data: Form[PostCreateSchema]) -> Post | Response:
+def create_post(
+        request: HttpRequest,
+        content: str = Form(...),
+        privacy_setting: str = Form(...)
+) -> Post | Response:
     try:
-        return PostService.create_posts(request=request, data=data)
+        # Accéder directement au fichier depuis request.FILES
+        media_url = request.FILES.get('media_url')
+
+        # Créer un dictionnaire avec les données du formulaire
+        post_data = {
+            "content": content,
+            "privacy_setting": privacy_setting
+        }
+
+        # Ajouter le fichier seulement s'il existe
+        if media_url is not None:
+            post_data["media_url"] = media_url
+
+        # Logs détaillés pour débogage
+        print(f"Type de media_url: {type(media_url)}")
+        print(f"Post data: {post_data}")
+
+        # Créer l'objet du service sans passer par le schéma Pydantic
+        # Adaptez cette partie selon l'implémentation de votre PostService
+        post = PostService.create_posts_raw(
+            request=request,
+            content=content,
+            privacy_setting=privacy_setting,
+            media_url=media_url
+        )
+
+        return post
     except Exception as error:
+        print(f"Erreur lors de la création du post: {error}")
+        import traceback
+        traceback.print_exc()
         return Response({"error": str(error)}, status=500)
 
 
 @router.patch(
-    "/{post_id}", response={200: PostSchema, 403: ErrorSchema}, auth=AuthBearer()
+    "/{int:post_id}", response={200: PostSchema, 403: ErrorSchema}, auth=AuthBearer()
 )
 def update_post(request: HttpRequest, post_id: int, data: PostUpdateSchema) -> Post | Response:
     try:
@@ -58,7 +88,7 @@ def update_post(request: HttpRequest, post_id: int, data: PostUpdateSchema) -> P
 
 
 @router.delete(
-    "/{post_id}", response={200: NoneSchema, 403: ErrorSchema}, auth=AuthBearer()
+    "/{int:post_id}", response={200: NoneSchema, 403: ErrorSchema}, auth=AuthBearer()
 )
 def delete_post(request: HttpRequest, post_id: int) -> dict[str, bool] | Response:
     try:
@@ -68,7 +98,7 @@ def delete_post(request: HttpRequest, post_id: int) -> dict[str, bool] | Respons
         return Response({"error": str(error)}, status=500)
 
 
-@router.post("/{post_id}/like", response={
+@router.post("/{int:post_id}/like", response={
     200: NoneSchema,
     403: ErrorSchema,
     404: ErrorSchema

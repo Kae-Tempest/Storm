@@ -17,8 +17,7 @@ class Post(models.Model):
     likes = models.ManyToManyField(CustomUser, related_name="liked_posts", blank=True)
 
     content = models.TextField()
-    title = models.CharField(max_length=255, blank=True)
-    media_url = models.URLField(blank=True, db_index=True)
+    media_url = models.FileField(upload_to='posts/', blank=True, null=True, db_index=True)
     location = models.CharField(max_length=255, blank=True)
 
     privacy_setting = models.CharField(
@@ -32,7 +31,7 @@ class Post(models.Model):
         ordering = ["-created_at"]
 
     def __str__(self):
-        return self.title
+        return self.content
 
     @property
     def likes_count(self) -> int:
