@@ -4,6 +4,7 @@
 import os
 import sys
 
+from django.conf import settings
 from opentelemetry.instrumentation.django import DjangoInstrumentor
 
 
@@ -18,7 +19,7 @@ def main() -> None:
         from django.core.management import execute_from_command_line
 
         # Si la commande est migrate, utiliser notre séquence personnalisée
-        if len(sys.argv) > 1 and sys.argv[1] == "migrate" and len(sys.argv) == 2:
+        if len(sys.argv) > 1 and sys.argv[1] == "migrate" and len(sys.argv) == 2 and settings.DEBUG is True:
             from core.automigrations import run_migrations
 
             run_migrations()
